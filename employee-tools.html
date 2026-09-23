@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Tools — Dos Margaritas Salsa</title>
+<style>
+  :root {
+    --bg: #fdf6ec;
+    --card-bg: #ffffff;
+    --text: #2b1b12;
+    --text-muted: #6b5a4d;
+    --accent: #c0392b;
+    --border: #e8ddce;
+    --shadow: 0 2px 10px rgba(43, 27, 18, 0.08);
+    --ok-bg: #dff3e3;
+    --ok-text: #1f7a3e;
+    --err-bg: #fbe2df;
+    --err-text: #9c2b1f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1410;
+      --card-bg: #2a201a;
+      --text: #f3e9dc;
+      --text-muted: #b8a998;
+      --accent: #e0574a;
+      --border: #3a2d24;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      --ok-bg: #143c22;
+      --ok-text: #7fdb9a;
+      --err-bg: #4a1f19;
+      --err-text: #f0a89e;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; }
+
+  a.back { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
+  a.back:hover { text-decoration: underline; }
+
+  h1 { color: var(--accent); font-size: 1.7rem; margin: 14px 0 6px; }
+  .lead { color: var(--text-muted); margin: 0 0 22px; line-height: 1.5; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+
+  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.92rem; }
+  .hint { color: var(--text-muted); font-size: 0.82rem; margin: 4px 0 14px; line-height: 1.4; }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1rem;
+  }
+  input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  button {
+    margin-top: 14px;
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.6; cursor: default; }
+
+  .result {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 10px;
+    display: none;
+  }
+  .result.ok { background: var(--ok-bg); color: var(--ok-text); display: block; }
+  .result.err { background: var(--err-bg); color: var(--err-text); display: block; }
+
+  .result .matched { font-size: 0.85rem; opacity: 0.85; margin-bottom: 10px; }
+
+  .coord-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+  .coord-row .label { width: 90px; font-weight: 700; font-size: 0.85rem; }
+  .coord-row code {
+    flex-grow: 1;
+    background: rgba(0,0,0,0.06);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  .coord-row button.copy {
+    width: auto;
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    background: rgba(0,0,0,0.15);
+    color: inherit;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="index.html">&larr; Back to Team Tools</a>
+  <h1>🧭 Latitude / Longitude Finder</h1>
+  <p class="lead">
+    Look up the coordinates for a store so you can paste them into the
+    <strong>Map pin</strong> block when adding it to the website. This runs
+    entirely in your browser — nothing about this page touches Shopify or
+    your login. It looks the address up using
+    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
+    a free public map database.
+  </p>
+
+  <div class="card">
+    <label for="query">Address, store name, or city/state</label>
+    <div class="hint">
+      A full street address works best (e.g. "12391 Kingsride Ln, Houston, TX").
+      A store name + city usually works too (e.g. "Iris Gifts Decor, Houston TX").
+      A bare website link (like "irisgiftsanddecor.com") <strong>won't work</strong> —
+      this tool can't visit outside websites to read their address for you, so
+      grab the address text from the site's contact/footer section and paste
+      that in instead.
+    </div>
+    <input type="text" id="query" placeholder="e.g. 12391 Kingsride Ln, Houston, TX 77024" />
+    <button id="searchBtn">Find Latitude &amp; Longitude</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+</div>
+
+<script>
+  const input = document.getElementById('query');
+  const btn = document.getElementById('searchBtn');
+  const resultBox = document.getElementById('result');
+
+  async function lookup() {
+    const query = input.value.trim();
+    if (!query) {
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Looking it up...';
+    resultBox.className = 'result';
+    resultBox.innerHTML = '';
+
+    try {
+      // Nominatim = OpenStreetMap's free search API. No key needed.
+      // We only ever send the address/name text the person typed -- nothing else.
+      const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(query);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('The lookup service did not respond (try again in a moment).');
+      }
+
+      const results = await response.json();
+
+      if (!results || results.length === 0) {
+        resultBox.className = 'result err';
+        resultBox.textContent = 'No match found for "' + query + '". Try adding the city and state, or double-check the spelling.';
+        return;
+      }
+
+      const place = results[0];
+      const lat = parseFloat(place.lat).toFixed(6);
+      const lon = parseFloat(place.lon).toFixed(6);
+
+      resultBox.className = 'result ok';
+      resultBox.innerHTML = `
+        <div class="matched">Matched: ${place.display_name}</div>
+        <div class="coord-row">
+          <span class="label">Latitude</span>
+          <code id="latVal">${lat}</code>
+          <button class="copy" type="button" data-copy="${lat}">Copy</button>
+        </div>
+        <div class="coord-row">
+          <span class="label">Longitude</span>
+          <code id="lonVal">${lon}</code>
+          <button class="copy" type="button" data-copy="${lon}">Copy</button>
+        </div>
+      `;
+
+      resultBox.querySelectorAll('button.copy').forEach(function (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+          navigator.clipboard.writeText(copyBtn.dataset.copy);
+          const original = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          setTimeout(function () { copyBtn.textContent = original; }, 1200);
+        });
+      });
+
+    } catch (err) {
+      resultBox.className = 'result err';
+      resultBox.textContent = 'Something went wrong: ' + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Find Latitude & Longitude';
+    }
+  }
+
+  btn.addEventListener('click', lookup);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') lookup();
+  });
+</script>
+
+</body>
+</html>
