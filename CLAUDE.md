@@ -47,10 +47,15 @@ The ACE Hardware Campaign and CRM sections are not built — CRM
 especially needs its own conversation about where shared/editable data
 should live before building it for real.
 
-## Root-level notes, not README
-The top-level file is `NOTES.md`, not `README.md` — on purpose, so
-GitHub doesn't auto-render it on the repo's main landing page. Michael
-doesn't want a wall of text when he opens the repo; he asks Claude what
-it says or asks Claude to update it instead of reading it directly.
-Never rename it back to `README.md` at the repo root. When Michael asks
-what's in it, read it and tell him in plain language.
+## Root README stays minimal; NOTES.md holds the detail
+The root `README.md` exists only to give GitHub's landing page one big,
+obvious, clickable button (currently: open the live Factory site). Never
+add paragraphs, tables, or explanation back into it — a badge/button
+linking out is all it should ever contain.
+
+All the actual detail (durability, Shopify boundary, design direction,
+placeholders, visibility caveats) lives in `NOTES.md` at the root
+instead, which GitHub does NOT auto-render. Michael doesn't want a wall
+of text when he opens the repo; he asks Claude what NOTES.md says, or
+asks Claude to update it, instead of reading it directly. When Michael
+asks what's in it, read it and tell him in plain language.
