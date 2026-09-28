@@ -1,0 +1,15 @@
+# This repo is public — real customer/order data must never end up in it.
+# These are the files the agent actually writes to / you drop in yourself;
+# none of them get committed. The code creates the .json files fresh the
+# first time you log something, so nothing here is required to exist.
+data/activity_log.json
+data/tasks.json
+data/stores.csv
+
+# Just in case you ever put a key in a local .env file instead of exporting
+# it in your shell — never commit that either.
+.env
+
+# Python's compiled-bytecode cache, regenerated automatically — not source.
+__pycache__/
+*.pyc

@@ -47,6 +47,29 @@ The ACE Hardware Campaign and CRM sections are not built — CRM
 especially needs its own conversation about where shared/editable data
 should live before building it for real.
 
+## `factory-agent/` is a separate, optional piece — not the website
+This is a real Claude-API-powered agent Michael runs himself from a
+terminal (`python agent.py`), using his/Maggie's own Anthropic API key —
+NOT the Claude Code session working on this repo, and not something that
+runs on GitHub Pages. It's intentionally exempt from the durability rule
+above: the *website* must never depend on an AI service being online,
+but this tool is allowed to, because it's optional and Michael explicitly
+asked to build and learn it himself.
+
+Rules for this folder specifically:
+- `data/activity_log.json`, `data/tasks.json`, and `data/stores.csv` must
+  stay in `.gitignore` and never be committed — they hold real customer/
+  order data and the real store list, and this repo is public. If asked
+  to add a new data file here, gitignore it too.
+- Tools live in `tools.py` as `@beta_tool`-decorated functions; keep new
+  tools narrow (one clear action each) and keep the loop itself
+  (`agent.py`) generic — don't hardcode business logic there.
+- No live Google Drive/Sheets or Shopify access yet — segmentation reads
+  a manually-exported `stores.csv`. Wiring up real Drive access (OAuth)
+  is a deliberate future step, not something to add unprompted.
+- Still never touch Shopify from here either — same rule as the rest of
+  this repo.
+
 ## Root README stays minimal; NOTES.md holds the detail
 The root `README.md` exists only to give GitHub's landing page one big,
 obvious, clickable button (currently: open the live Factory site). Never

@@ -19,8 +19,16 @@ file links, and small helper tools.
   using OpenStreetMap's free, no-key-needed search. Built for pasting
   the result straight into Shopify's "Map pin" block when adding a
   store to the site.
+- **`factory-agent/`** — a separate, optional Python tool: a real AI agent
+  (built on the Claude API) you run yourself from a terminal to log
+  customer interactions/orders, track tasks/reminders, and get quick
+  reports/segmentation over the Master Store List. Needs your own
+  Anthropic API key and costs a small amount per use — see
+  `factory-agent/README.md` for setup, cost, and how it works. Your real
+  data stays local on your computer (gitignored on purpose) — it never
+  gets committed to this public repo.
 
-## How to run it without the internet
+## How to run the website without the internet
 
 Double-click `index.html` (or open it in a browser) — works completely
 offline too, no install, no setup.
